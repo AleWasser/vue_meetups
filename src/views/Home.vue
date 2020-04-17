@@ -35,24 +35,15 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "Home",
-  data: () => ({
-    meetups: [
-      {
-        imageUrl:
-          "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.travelmax.com%2Fwp-content%2Fuploads%2F2018%2F02%2Fnew-york-fina.jpg&f=1&nofb=1",
-        id: "1",
-        title: "Meetup in New York"
-      },
-      {
-        imageUrl:
-          "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.tripsavvy.com%2Fthmb%2FEUMQKWJTrXTgN1O9OWOWitcxI_0%3D%2F2121x1414%2Ffilters%3Afill(auto%2C1)%2Fparis-eiffel-tower-5c1da64246e0fb00011df88c.jpg&f=1&nofb=1",
-        id: "2",
-        title: "Meetup in Paris"
-      }
-    ]
-  })
+  data: () => ({}),
+  computed: {
+    ...mapGetters({
+      meetups: "meetups/featuredMeetups"
+    })
+  }
 };
 </script>
 

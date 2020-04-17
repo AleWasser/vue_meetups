@@ -3,19 +3,13 @@
     <v-row>
       <v-col cols="12">
         <v-card class="mx-auto">
-          <v-card-title>My Meetup</v-card-title>
-          <v-img
-            class="white--text align-end"
-            height="400px"
-            src="https://cdn.vuetifyjs.com/images/cards/docks.jpg"
-          ></v-img>
+          <v-card-title v-text="meetup.title"></v-card-title>
+          <v-img class="white--text align-end" height="400px" :src="meetup.imageUrl"></v-img>
 
-          <v-card-subtitle class="pb-0">Number 10</v-card-subtitle>
+          <v-card-subtitle class="pb-0">{{meetup.date | date}} - {{meetup.location}}</v-card-subtitle>
 
           <v-card-text class="text--primary">
-            <div>Whitehaven Beach</div>
-
-            <div>Whitsunday Island, Whitsunday Islands</div>
+            <p v-text="meetup.description"></p>
           </v-card-text>
 
           <v-card-actions>
@@ -30,6 +24,12 @@
 
 <script>
 export default {
-  name: "Meetup"
+  props: ["id"],
+  name: "Meetup",
+  computed: {
+    meetup() {
+      return this.$store.getters["meetups/getMeetup"](this.id);
+    }
+  }
 };
 </script>

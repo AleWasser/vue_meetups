@@ -32,18 +32,37 @@
 <script>
 export default {
   data: () => ({
-    drawer: false,
-    menuItems: [
-      {
-        icon: "mdi-account-supervisor",
-        title: "View Meetups",
-        link: "/meetups"
-      },
-      { icon: "mdi-map-marker", title: "Organize Meetup", link: "/meetup/new" },
-      { icon: "mdi-account", title: "Profile", link: "/profile" },
-      { icon: "mdi-face", title: "Sign Up", link: "/signup" },
-      { icon: "mdi-lock-open-outline", title: "Sign in", link: "/signin" }
-    ]
-  })
+    drawer: false
+  }),
+  computed: {
+    isAuthenticated() {
+      return (
+        this.$store.getters["users/getUser"] != null &&
+        this.$store.getters["users/getUser"] != undefined
+      );
+    },
+    menuItems() {
+      let menuItems = [
+        { icon: "mdi-face", title: "Sign Up", link: "/signup" },
+        { icon: "mdi-lock-open-outline", title: "Sign in", link: "/signin" }
+      ];
+      if (this.isAuthenticated) {
+        menuItems = [
+          {
+            icon: "mdi-account-supervisor",
+            title: "View Meetups",
+            link: "/meetups"
+          },
+          {
+            icon: "mdi-map-marker",
+            title: "Organize Meetup",
+            link: "/meetup/new"
+          },
+          { icon: "mdi-account", title: "Profile", link: "/profile" }
+        ];
+      }
+      return menuItems;
+    }
+  }
 };
 </script>
