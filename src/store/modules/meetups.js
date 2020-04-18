@@ -1,3 +1,5 @@
+import * as firebase from 'firebase';
+
 const state = {
     meetups: [{
             imageUrl: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.travelmax.com%2Fwp-content%2Fuploads%2F2018%2F02%2Fnew-york-fina.jpg&f=1&nofb=1",
@@ -38,23 +40,100 @@ const getters = {
 const mutations = {
     createMeetup(state, payload) {
         return state.meetups.push(payload);
+    },
+    setLoadedMeetups(state, payload) {
+        return state.meetups = payload;
     }
 }
 
 const actions = {
     createMeetup({
-        commit
+        commit,
+        rootGetters
     }, payload) {
+        commit('clearError', {}, {
+            root: true
+        });
         const meetup = {
-            id: new Date(),
             title: payload.title,
             location: payload.location,
-            imageUrl: payload.imageUrl,
             description: payload.description,
-            date: payload.date,
+            date: payload.date.toISOString(),
+            creatorId: rootGetters["users/getUser"].id
         }
-        //Reach out to database
-        commit('createMeetup', meetup);
+        let imageUrl;
+        let key;
+        //* Store in database
+        firebase.database().ref('meetups').push(meetup)
+            .then((data) => {
+                key = data.key
+                return key;
+            })
+            .then(key => {
+                //* Store image in storage
+                const filename = payload.image.name;
+                const ext = filename.slice(filename.lastIndexOf('.'));
+                return firebase.storage().ref(`meetups/${key}${ext}`).put(payload.image);
+            })
+            .then(fileData => {
+                return fileData.ref.getDownloadURL();
+            })
+            .then(url => {
+                imageUrl = url;
+                return firebase.database().ref('meetups').child(key).update({
+                    imageUrl: imageUrl,
+                    id: key,
+                });
+            })
+            .then(() => {
+                commit('createMeetup', {
+                    ...meetup,
+                    id: key,
+                    imageUrl: imageUrl
+                });
+            })
+            .catch(err => {
+                commit('setError', err, {
+                    root: true
+                });
+            });
+    },
+    loadMeetups({
+        commit
+    }) {
+        commit('clearError', {}, {
+            root: true
+        });
+        commit('setLoading', true, {
+            root: true
+        });
+        firebase.database().ref('meetups').once('value')
+            .then(data => {
+                const meetups = [];
+                const obj = data.val();
+                for (let key in obj) {
+                    meetups.push({
+                        id: key,
+                        title: obj[key].title,
+                        description: obj[key].description,
+                        imageUrl: obj[key].imageUrl,
+                        date: obj[key].date,
+                        creatorId: obj[key].creatorId
+                    });
+                }
+                commit('setLoadedMeetups', meetups);
+                commit('setLoading', false, {
+                    root: true
+                });
+            })
+            .catch(err => {
+                commit('setError', err, {
+                    root: true
+                });
+                commit('setLoading', false, {
+                    root: true
+                });
+            })
     }
 }
 

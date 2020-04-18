@@ -11,6 +11,9 @@
           <v-icon left>{{item.icon}}</v-icon>
           {{item.title}}
         </v-btn>
+        <v-btn text x-large v-if="isAuthenticated" @click="onClick">
+          <v-icon left>mdi-logout-variant</v-icon>Logout
+        </v-btn>
       </div>
     </v-app-bar>
 
@@ -22,6 +25,12 @@
               <v-icon>{{item.icon}}</v-icon>
             </v-list-item-icon>
             <v-list-item-content>{{item.title}}</v-list-item-content>
+          </v-list-item>
+          <v-list-item v-if="isAuthenticated" @click="onClick">
+            <v-list-item-icon>
+              <v-icon>mdi-logout-variant</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Logout</v-list-item-content>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -62,6 +71,11 @@ export default {
         ];
       }
       return menuItems;
+    }
+  },
+  methods: {
+    onClick() {
+      return this.$store.dispatch("users/logout");
     }
   }
 };

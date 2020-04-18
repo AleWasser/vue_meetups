@@ -26,13 +26,7 @@
           </v-row>
           <v-row justify="center">
             <v-col xs="12" sm="6">
-              <v-text-field
-                name="imageUrl"
-                label="Image URL"
-                id="imageUrl"
-                v-model="imageUrl"
-                required
-              ></v-text-field>
+              <v-file-input label="Select an image" accept="image/*" @change="onFilePicked"></v-file-input>
             </v-col>
           </v-row>
           <v-row justify="center">
@@ -86,6 +80,7 @@ export default {
     location: "",
     imageUrl: "",
     description: "",
+    image: null,
     date: moment().format("YYYY-MM-DD"),
     time: null
   }),
@@ -111,14 +106,29 @@ export default {
       if (!this.formIsValid) {
         return;
       }
+      if (!this.image) {
+        return;
+      }
       this.$store.dispatch("meetups/createMeetup", {
         title: this.title,
         location: this.location,
-        imageUrl: this.imageUrl,
+        image: this.image,
         description: this.description,
         date: dateFormat
       });
       this.$router.push("/meetups");
+    },
+    onFilePicked(file) {
+      let fileName = file.name;
+      if (fileName.lastIndexOf(".") <= 0) {
+        return alert("Please add a valid file!");
+      }
+      const fileReader = new FileReader();
+      fileReader.addEventListener("load", () => {
+        this.imageUrl = fileReader.result;
+      });
+      fileReader.readAsDataURL(file);
+      this.image = file;
     }
   }
 };

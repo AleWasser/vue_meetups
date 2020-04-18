@@ -10,7 +10,14 @@
     </v-row>
     <v-row class="my-2">
       <v-col cols="12">
-        <v-carousel hide-delimiters show-arrows-on-hover>
+        <v-container v-if="loader">
+          <v-row class="text-center">
+            <v-col cols="12">
+              <v-progress-circular indeterminate color="primary" width="8" size="100"></v-progress-circular>
+            </v-col>
+          </v-row>
+        </v-container>
+        <v-carousel hide-delimiters show-arrows-on-hover v-else>
           <v-carousel-item
             v-for="item in meetups"
             :src="item.imageUrl"
@@ -39,11 +46,10 @@ import { mapGetters } from "vuex";
 export default {
   name: "Home",
   data: () => ({}),
-  computed: {
-    ...mapGetters({
-      meetups: "meetups/featuredMeetups"
-    })
-  }
+  computed: mapGetters({
+    meetups: "meetups/featuredMeetups",
+    loader: "getLoading"
+  })
 };
 </script>
 

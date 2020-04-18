@@ -25,11 +25,17 @@ new Vue({
       authDomain: "vue-meetups-f41f7.firebaseapp.com",
       databaseURL: "https://vue-meetups-f41f7.firebaseio.com",
       projectId: "vue-meetups-f41f7",
-      storageBucket: "vue-meetups-f41f7.appspot.com",
+      storageBucket: "gs://vue-meetups-f41f7.appspot.com",
       messagingSenderId: "984075085489",
       appId: "1:984075085489:web:9f2bec536083b14186e490",
       measurementId: "G-QV5QP61GK5"
     };
     firebase.initializeApp(firebaseConfig);
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        this.$store.dispatch('users/autoSignIn', user);
+      }
+    });
+    this.$store.dispatch('meetups/loadMeetups');
   }
 }).$mount('#app')
