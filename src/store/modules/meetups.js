@@ -1,24 +1,7 @@
 import * as firebase from 'firebase';
 
 const state = {
-    meetups: [{
-            imageUrl: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.travelmax.com%2Fwp-content%2Fuploads%2F2018%2F02%2Fnew-york-fina.jpg&f=1&nofb=1",
-            id: "1",
-            title: "Meetup in New York",
-            date: new Date(),
-            location: 'New York',
-            description: 'A meetup in Paris',
-        },
-        {
-            imageUrl: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.tripsavvy.com%2Fthmb%2FEUMQKWJTrXTgN1O9OWOWitcxI_0%3D%2F2121x1414%2Ffilters%3Afill(auto%2C1)%2Fparis-eiffel-tower-5c1da64246e0fb00011df88c.jpg&f=1&nofb=1",
-            id: "2",
-            title: "Meetup in Paris",
-            date: new Date(),
-            location: 'Paris',
-            description: 'A meetup in Paris',
-
-        }
-    ],
+    meetups: [],
 }
 
 const getters = {
@@ -34,6 +17,15 @@ const getters = {
         return (id) => {
             return state.meetups.find(item => item.id === id);
         }
+    },
+    getRegisteredMeetups(state) {
+        return (meetupsId) => {
+            let meetups = [];
+            meetupsId.forEach(item => {
+                meetups.push(state.meetups.find(meetup => meetup.id == item));
+            });
+            return meetups;
+        }
     }
 }
 
@@ -43,7 +35,21 @@ const mutations = {
     },
     setLoadedMeetups(state, payload) {
         return state.meetups = payload;
-    }
+    },
+    updateMeetup(state, payload) {
+        const meetup = state.meetups.find(meetup => {
+            return meetup.id === payload.id;
+        });
+        if (payload.title) {
+            meetup.title = payload.title;
+        }
+        if (payload.description) {
+            meetup.description = payload.description;
+        }
+        if (payload.date) {
+            meetup.date = payload.date;
+        }
+    },
 }
 
 const actions = {
@@ -58,7 +64,7 @@ const actions = {
             title: payload.title,
             location: payload.location,
             description: payload.description,
-            date: payload.date.toISOString(),
+            date: payload.date,
             creatorId: rootGetters["users/getUser"].id
         }
         let imageUrl;
@@ -118,10 +124,11 @@ const actions = {
                         description: obj[key].description,
                         imageUrl: obj[key].imageUrl,
                         date: obj[key].date,
+                        location: obj[key].location,
                         creatorId: obj[key].creatorId
                     });
                 }
-                commit('setLoadedMeetups', meetups);
+                commit('setLoadedMeetups', meetups)
                 commit('setLoading', false, {
                     root: true
                 });
@@ -134,7 +141,42 @@ const actions = {
                     root: true
                 });
             })
-    }
+    },
+    updateMeetupData({
+        commit
+    }, payload) {
+        commit('clearError', {}, {
+            root: true
+        });
+        commit('setLoading', true, {
+            root: true
+        });
+        const updateObj = {};
+        if (payload.title) {
+            updateObj.title = payload.title;
+        }
+        if (payload.description) {
+            updateObj.description = payload.description;
+        }
+        if (payload.date) {
+            updateObj.date = payload.date;
+        }
+        firebase.database().ref('meetups').child(payload.id).update(updateObj)
+            .then(() => {
+                commit('setLoading', false, {
+                    root: true
+                });
+                commit('updateMeetup', payload);
+            })
+            .catch(err => {
+                commit('setError', err, {
+                    root: true
+                });
+                commit('setLoading', false, {
+                    root: true
+                });
+            });
+    },
 }
 
 export default {

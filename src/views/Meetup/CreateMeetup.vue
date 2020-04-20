@@ -96,13 +96,9 @@ export default {
   },
   methods: {
     onSubmit() {
-      const timeArr = this.time.split(":");
-      const dateFormat = moment(this.date, "YYYY-MM-DD")
-        .set({
-          hour: timeArr[0],
-          minutes: timeArr[1]
-        })
-        .toDate();
+      const dateFormat = moment(this.date + " " + this.time).format(
+        "DD/MM/YYYY HH:mm"
+      );
       if (!this.formIsValid) {
         return;
       }

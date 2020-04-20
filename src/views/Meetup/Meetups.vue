@@ -7,7 +7,7 @@
             <v-card-title class="title-background" v-text="item.title"></v-card-title>
           </v-img>
 
-          <v-card-subtitle class="pb-0">{{item.date | date}} - {{item.location}}</v-card-subtitle>
+          <v-card-subtitle class="pb-0">{{item.date}} - {{item.location}}</v-card-subtitle>
 
           <v-card-text class="text--primary">
             <p v-text="item.description"></p>
